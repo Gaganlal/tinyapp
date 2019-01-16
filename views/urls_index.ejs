@@ -1,0 +1,16 @@
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+  <% include ./partials/_header %>
+</head>
+
+<body>
+    <% for (i in urls) { %>
+      <li>
+        <%= `${i} - ${urls[i]}` %>
+      </li>
+    <% } %>
+    <a href='#'> </a>
+</body>
+</html>
+
