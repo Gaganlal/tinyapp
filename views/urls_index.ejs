@@ -7,10 +7,12 @@
 <body>
     <% for (i in urls) { %>
       <li>
-        <%= `${i} - ${urls[i]}` %>
+        <%= `${i} - ${urls[i]}` %>  <form method="POST" action="/urls/<%= i %>/delete">  <input type="submit" value="Delete &#x1F5D1"> </form>
       </li>
     <% } %>
     <a href='#'> </a>
+                                                              <!-- this is the deelete ^^button   command slash makes a comment -->
+
 </body>
 </html>
 

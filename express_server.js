@@ -64,6 +64,11 @@ app.post("/urls", (req, res) => {
                                             // {longURL : WHAT U TYPED IN form }  // .longurl u get the value of it which is what
 });                                                                   // u submit
 
+app.post("/urls/:id/delete", (req,res) => {
+  var id = req.params.id
+  delete urlDataBase[id]
+  res.redirect("/urls")
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on Port ${PORT}`)
