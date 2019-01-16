@@ -7,6 +7,14 @@
 <body>
  <%= longURL[shortURL] %> - <%= shortURL %>
 
+ <form method="POST" action="/urls/<%= shortURL %>">
+  <<input id="longURL" type="text" name="longURL">
+  <button type= "submit"> "Update" </button>
+</form>
+
     <a href='#'> </a>
 </body>
 </html>
+
+
+<!-- if u put id in constructors, it wont wokr because id IS NOT A KEY in the var templat... so it wont work.  -->
