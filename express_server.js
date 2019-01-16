@@ -9,7 +9,7 @@ var PORT = 8081;
 
 app.set("view engine", "ejs")
 
-var urlDataBase = {
+let urlDataBase = {
 
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -49,9 +49,19 @@ app.get("/urls/:id", (req, res) => {
   res.render('urls_show', templateVars)
 })
 
+app.get("/u/:shortURL", (req, res) => {
+ var shortURL = req.params.shortURL
+  let longURL = urlDataBase[shortURL]
+  res.redirect(longURL);
+});
+
 app.post("/urls", (req, res) => {
-  console.log(req.body.longURL);                            // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
-  res.send("Ok");                                // {longURL : WHAT U TYPED IN form }  // .longurl u get the value of it which is what
+  console.log(req.body);
+  var rando = generateRandomString()                          // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
+ urlDataBase[rando] = req.body.longURL
+  console.log(urlDataBase)
+  res.redirect(`/urls/${rando}`)
+                                            // {longURL : WHAT U TYPED IN form }  // .longurl u get the value of it which is what
 });                                                                   // u submit
 
 
@@ -69,6 +79,4 @@ function generateRandomString() {
 
   return text;
 }
-
-console.log(generateRandomString())
 
