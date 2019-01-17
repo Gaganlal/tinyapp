@@ -56,14 +56,9 @@ app.get("/hello", (req,res) => {
 })
 
 app.get("/urls", (req, res) => {
-  // let username;
-  // if(req.cookies) {
-
-  // }
-  // console.log( req.cookies && req.cookies['username'] )
   let templateVars = {
     urls: urlDataBase,
-    username: req.cookies.username
+    userId: users[req.cookies.userId]
    };                         //passing the urls data (urlDataBase) to the template urls_index
   res.render("urls_index", templateVars);                                 //by storing as variable templateVars
 });
@@ -71,7 +66,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req,res) => {
 let templateVars = {
     urls: urlDataBase,
-    username: req.cookies.username
+    userId: users[req.cookies.userId]
    };
    res.render("urls_new", templateVars)
 
@@ -81,7 +76,7 @@ app.get("/urls/:id", (req, res) => {
   let templateVars = {
     shortURL : req.params.id,
     longURL : urlDataBase,
-    username: req.cookies.username
+    userId: users[req.cookies.userId]
   }
   res.render('urls_show', templateVars)
 })
@@ -145,15 +140,29 @@ app.post("/urls/:id", (req, res) => {
 
 })
 
+app.get('/login', (req, res) => {
+  res.render('loginpage')
+})
 app.post("/login", (req, res) => {
-console.log(req)
-console.log(req.body.username)
-  res.cookie('username', req.body.username)
-  res.redirect('/urls')
+  const names = req.body.names
+  const email = req.body.email
+  const password = req.body.password
+  console.log(req.body)
+  for (key in users) {
+    if (email === users[key].email && password === users[key].password) {
+      res.cookie('userId', key)
+      res.redirect('/urls')
+    }
+  } if (email !== users[key].email && password !== users[key].password) {
+    return res.status(403).send("Incorrect Email or Password")
+  }
+// var entirebody = req.body
+// console.log(entirebody)
+
 })
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username')
+  res.clearCookie('userId')
   res.status(302).redirect('/urls')
 })
 
