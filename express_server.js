@@ -68,6 +68,14 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get('/register', (req, res) => {
+  res.render('urls_emailpassword')
+})
+
+app.post('/register', (req, res) => {
+  console.log(req.body)
+})
+
 app.post("/urls", (req, res) => {
   console.log(req.body);
   var rando = generateRandomString()                          // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
