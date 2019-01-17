@@ -11,11 +11,35 @@ var PORT = 8081;
 
 app.set("view engine", "ejs")
 
+
+function generateRandomString() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 6; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+};
+
 let urlDataBase = {
 
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 
+};
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
 };
 
 
@@ -74,6 +98,29 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   console.log(req.body)
+  var email = req.body.email
+  var password = req.body.password
+  var random = generateRandomString()
+  if (!email || !password) {
+    res.status(400).send("fill it in foo!")
+  }
+  for (key in users) {
+    if (email === users[key].email) {
+      res.status(400).send("email already exists")
+    }
+  }
+  users[random] = {
+    id: random,
+    email: email,
+    password : password
+  }
+  console.log(users)
+  //res.cookie('userId', users[random].id)
+  var cookieID = users[random].id
+  console.log(cookieID)
+  res.cookie("userId", cookieID)
+  res.redirect("/urls")
+
 })
 
 app.post("/urls", (req, res) => {
@@ -115,13 +162,4 @@ app.listen(PORT, () => {
 })
 
 
-function generateRandomString() {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (var i = 0; i < 6; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-  return text;
-}
 
