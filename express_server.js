@@ -102,7 +102,7 @@ app.post('/register', (req, res) => {
   var password = req.body.password
   var random = generateRandomString()
   if (!email || !password) {
-    res.status(400).send("fill in fool")
+    return res.status(400).send("fill in fool")         // the reutn key prevents the sending headers error
   }
     for (key in users) {
     if (email === users[key].email) {
