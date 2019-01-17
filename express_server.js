@@ -102,9 +102,9 @@ app.post('/register', (req, res) => {
   var password = req.body.password
   var random = generateRandomString()
   if (!email || !password) {
-    res.status(400).send("fill it in foo!")
+    res.status(400).send("fill in fool")
   }
-  for (key in users) {
+    for (key in users) {
     if (email === users[key].email) {
       res.status(400).send("email already exists")
     }
