@@ -1,14 +1,3 @@
-<head>
-
-
-
-
-
-<title> Gagan's Tiny App </title>
-
-</head>
-
-<header>
 
 
 <% if(userId) {%>
@@ -17,18 +6,12 @@
      <input type="submit" value = "Log Out">
   </form>
 
-<%} else { %>
-<li> <a href="/login"> Log In here </a> </li>
- <li> <a href="/register"> Register Here </a> </li>
- <form method= "POST" action="/login">
-   userId: <input type="text" name = "userID">
-    <input type="submit" value="Submit form">
-  </form>
+
 <% } %>
 
 
 
-</header>
+
 
 
 

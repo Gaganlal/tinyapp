@@ -23,13 +23,16 @@ function generateRandomString() {
 };
 
 let urlDataBase = {
-  //   shortURL : {
-  //   longUrl : "wwwwcom",
-  //   userId : userId
-  // }
-
-
+  "b2xVn2": {
+   longURL : "http://www.lighthouselabs.ca",
+   userID : "userRandomID"
+ },
+ "9sm5xK": {
+  longURL: "http://www.google.com",
+  userID : "userRandomID"
+ }
 };
+
 
 function findURLS(userid) {
   var filterDatabase = []
@@ -38,6 +41,7 @@ function findURLS(userid) {
       let data = urlDataBase[shortkey];
       data['shortURL']= shortkey
       filterDatabase.push(data)
+      console.log(filterDatabase)
     }
   }
   return filterDatabase;
@@ -70,8 +74,6 @@ app.get("/hello", (req,res) => {
 })
 
 app.get("/urls", (req, res) => {
-
-
     if(req.cookies.userId === undefined ){
       res.send("Please Log in")
     } else {
@@ -86,6 +88,25 @@ app.get("/urls", (req, res) => {
   }                                 //by storing as variable templateVars
 });
 
+app.get("/urls/:id", (req, res) => {
+  let templateVars = {
+    shortURL : req.params.id,
+    longURL : urlDataBase,
+    userId: users[req.cookies.userId]
+  }
+  var shortURL = req.params.id
+  console.log("shortURL:", shortURL)
+  console.log("ActualUrlDataBase :", urlDataBase )
+  console.log("req.cookies :", req.cookies)
+  console.log("urlDataBase: ", urlDataBase[shortURL])
+
+  if(req.cookies.userId === urlDataBase[shortURL].userId) {
+    res.render('urls_show', templateVars)
+  } else {
+    res.send("you don't have permission to edit")
+  }
+})
+
 app.get("/urls/new", (req,res) => {
 if(!req.cookies['userId']) {
   res.redirect("/urls")
@@ -98,19 +119,6 @@ let templateVars = {
 
 })
 
-app.get("/urls/:id", (req, res) => {
-  let templateVars = {
-    shortURL : req.params.id,
-    longURL : urlDataBase,
-    userId: users[req.cookies.userId]
-  }
-  var shortURL = req.params.id
-   if(req.cookies.userId === urlDataBase[shortURL].userID) {
-  res.render('urls_show', templateVars)
-} else {
-  res.send("you don't have permission to edit")
-}
-})
 
 app.get("/u/:shortURL", (req, res) => {
  var shortURL = req.params.shortURL
