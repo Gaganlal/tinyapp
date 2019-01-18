@@ -25,19 +25,19 @@ function generateRandomString() {
 let urlDataBase = {
   "b2xVn2": {
    longURL : "http://www.lighthouselabs.ca",
-   userID : "userRandomID"
+   userId : "userRandomID"
  },
  "9sm5xK": {
   longURL: "http://www.google.com",
-  userID : "userRandomID"
+  userId : "userRandomID"
  }
 };
 
 
-function findURLS(userid) {
+function findURLS(userId) {
   var filterDatabase = []
   for (var shortkey in urlDataBase) {
-    if(userid === urlDataBase[shortkey].userId) {
+    if(userId === urlDataBase[shortkey].userId) {
       let data = urlDataBase[shortkey];
       data['shortURL']= shortkey
       filterDatabase.push(data)
@@ -74,38 +74,20 @@ app.get("/hello", (req,res) => {
 })
 
 app.get("/urls", (req, res) => {
-    if(req.cookies.userId === undefined ){
-      res.send("Please Log in")
-    } else {
-      let filterData = findURLS(req.cookies.userId)
+  if(req.cookies.userId === undefined ){
+    res.send("Please Log in")
+  } else {
+    let filterData = findURLS(req.cookies.userId)
 
-  console.log(filterData)
-  let templateVars = {
-    filterDatabase: filterData,
-    userId: users[req.cookies.userId]
+    console.log(filterData)
+    let templateVars = {
+      filterDatabase: filterData,
+      userId: users[req.cookies.userId]
    };                         //passing the urls data (urlDataBase) to the template urls_index
-  res.render("urls_index", templateVars);
+   res.render("urls_index", templateVars);
   }                                 //by storing as variable templateVars
 });
 
-app.get("/urls/:id", (req, res) => {
-  let templateVars = {
-    shortURL : req.params.id,
-    longURL : urlDataBase,
-    userId: users[req.cookies.userId]
-  }
-  var shortURL = req.params.id
-  console.log("shortURL:", shortURL)
-  console.log("ActualUrlDataBase :", urlDataBase )
-  console.log("req.cookies :", req.cookies)
-  console.log("urlDataBase: ", urlDataBase[shortURL])
-
-  if(req.cookies.userId === urlDataBase[shortURL].userId) {
-    res.render('urls_show', templateVars)
-  } else {
-    res.send("you don't have permission to edit")
-  }
-})
 
 app.get("/urls/new", (req,res) => {
 if(!req.cookies['userId']) {
@@ -120,9 +102,32 @@ let templateVars = {
 })
 
 
+app.get("/urls/:id", (req, res) => {
+  let templateVars = {
+    shortURL : req.params.id,
+    longURL : urlDataBase,
+    userId: users[req.cookies.userId]
+  }
+
+  var shortURL = req.params.id
+  if (urlDataBase[shortURL])
+  console.log("shortURL:", shortURL)
+  console.log("ActualUrlDataBase :", urlDataBase )
+  console.log("req.cookies :", req.cookies)
+  console.log("urlDataBase: ", urlDataBase[shortURL])
+
+  if(req.cookies.userId === urlDataBase[shortURL].userId) {
+    res.render('urls_show', templateVars)
+  } else {
+    res.send("you don't have permission to edit")
+  }
+})
+
+
+
 app.get("/u/:shortURL", (req, res) => {
  var shortURL = req.params.shortURL
-  let longURL = urlDataBase[shortURL]
+  let longURL = urlDataBase[shortURL].longURL
   res.redirect(longURL);
 });
 
@@ -161,10 +166,10 @@ app.post("/urls", (req, res) => {
   console.log(req.body);
   var rando = generateRandomString()
   const longURL = req.body.longURL
-  const userID = req.cookies.userId                  // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
+  const userId = req.cookies.userId                  // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
  urlDataBase[rando] = {
   longURL: longURL,
-  userID: req.cookies.userId
+  userId: req.cookies.userId
 }
   console.log(urlDataBase)
   res.redirect(`/urls/${rando}`)
@@ -173,7 +178,7 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:id/delete", (req,res) => {
   var shortURL = req.params.id;
-  if (req.cookies.userId === urlDataBase[shortURL].userID) {
+  if (req.cookies.userId === urlDataBase[shortURL].userId) {
     delete urlDataBase[shortURL]
      res.redirect(`/urls`)
   } else {
