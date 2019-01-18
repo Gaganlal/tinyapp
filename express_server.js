@@ -1,7 +1,7 @@
 var express = require("express")
 
 var app = express();
-
+const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 var cookieParser = require('cookie-parser')
@@ -51,12 +51,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("abss", 10)
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("flksjlsj", 10)
   }
 };
 
@@ -138,7 +138,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   console.log(req.body)
   var email = req.body.email
-  var password = req.body.password
+  var password = bcrypt.hashSync(req.body.password, 10)
   var random = generateRandomString()
   if (!email || !password) {
     return res.status(400).send("fill in fool")         // the reutn key prevents the sending headers error
@@ -202,7 +202,7 @@ app.post("/login", (req, res) => {
   const password = req.body.password
   console.log(req.body)
   for (key in users) {
-    if (email === users[key].email && password === users[key].password) {
+    if (email === users[key].email && bcrypt.compareSync(password, users[key].password)) {
       res.cookie('userId', key)
       res.redirect('/urls')
     }
