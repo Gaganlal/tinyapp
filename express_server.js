@@ -23,9 +23,11 @@ function generateRandomString() {
 };
 
 let urlDataBase = {
+  //   shortURL : {
+  //   longUrl : "wwwwcom",
+  //   userId : userId
+  // }
 
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
 
 };
 
@@ -64,6 +66,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req,res) => {
+if(!req.cookies['userId']) {
+  res.redirect("/urls")
+}
 let templateVars = {
     urls: urlDataBase,
     userId: users[req.cookies.userId]
@@ -120,8 +125,13 @@ app.post('/register', (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);
-  var rando = generateRandomString()                          // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
- urlDataBase[rando] = req.body.longURL
+  var rando = generateRandomString()
+  const longURL = req.body.longURL
+  const userID = req.cookies.userId                  // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
+ urlDataBase[rando] = {
+  longURL: longURL,
+  userID: req.cookies.userId
+}
   console.log(urlDataBase)
   res.redirect(`/urls/${rando}`)
                                             // {longURL : WHAT U TYPED IN form }  // .longurl u get the value of it which is what

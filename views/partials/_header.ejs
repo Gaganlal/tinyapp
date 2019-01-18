@@ -13,7 +13,7 @@
 
 <% if(userId) {%>
  <li> <a href="/logout"> Logout </a> </li>
-  <%= userId %> <form method= "POST" action = "/logout">
+  <%= userId.email %> <form method= "POST" action = "/logout">
      <input type="submit" value = "Log Out">
   </form>
 

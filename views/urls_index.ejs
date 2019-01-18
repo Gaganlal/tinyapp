@@ -6,7 +6,7 @@
 <body>
     <% for (i in urls) { %>
       <li>
-        <%= `${i} - ${urls[i]}` %>  <form method="POST" action="/urls/<%= i %>/delete"> <a href='/urls/<%= i %>'>Edit </a> <input type="submit" value="Delete &#x1F5D1"> </form>
+        <%= `${i} - ${urls[i].longURL}` %>  <form method="POST" action="/urls/<%= i %>/delete"> <a href='/urls/<%= i %>'>Edit </a> <input type="submit" value="Delete &#x1F5D1"> </form>
       </li>
     <% } %>
 
