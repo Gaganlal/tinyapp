@@ -138,9 +138,13 @@ app.post("/urls", (req, res) => {
 });                                                                   // u submit
 
 app.post("/urls/:id/delete", (req,res) => {
-  var id = req.params.id
-  delete urlDataBase[id]
-  res.redirect(`/urls`)
+  var shortURL = req.params.id;
+  if (req.cookies.userId === urlDataBase[shortURL].userID) {
+    delete urlDataBase[shortURL]
+     res.redirect(`/urls`)
+  } else {
+    res.send("fam you don't have permission to delete me!")
+  }
 })
 
 app.post("/urls/:id", (req, res) => {
