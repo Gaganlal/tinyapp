@@ -83,7 +83,12 @@ app.get("/urls/:id", (req, res) => {
     longURL : urlDataBase,
     userId: users[req.cookies.userId]
   }
+  var shortURL = req.params.id
+   if(req.cookies.userId === urlDataBase[shortURL].userID) {
   res.render('urls_show', templateVars)
+} else {
+  res.send("you don't have permission to edit")
+}
 })
 
 app.get("/u/:shortURL", (req, res) => {
