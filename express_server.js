@@ -31,6 +31,18 @@ let urlDataBase = {
 
 };
 
+function findURLS(userid) {
+  var filterDatabase = []
+  for (var shortkey in urlDataBase) {
+    if(userid === urlDataBase[shortkey].userId) {
+      let data = urlDataBase[shortkey];
+      data['shortURL']= shortkey
+      filterDatabase.push(data)
+    }
+  }
+  return filterDatabase;
+}
+
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -58,11 +70,20 @@ app.get("/hello", (req,res) => {
 })
 
 app.get("/urls", (req, res) => {
+
+
+    if(req.cookies.userId === undefined ){
+      res.send("Please Log in")
+    } else {
+      let filterData = findURLS(req.cookies.userId)
+
+  console.log(filterData)
   let templateVars = {
-    urls: urlDataBase,
+    filterDatabase: filterData,
     userId: users[req.cookies.userId]
    };                         //passing the urls data (urlDataBase) to the template urls_index
-  res.render("urls_index", templateVars);                                 //by storing as variable templateVars
+  res.render("urls_index", templateVars);
+  }                                 //by storing as variable templateVars
 });
 
 app.get("/urls/new", (req,res) => {
