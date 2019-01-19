@@ -1,13 +1,24 @@
 
 
+
+
 <% if(userId) {%>
- <li> <a href="/logout"> Logout </a> </li>
-  <%= userId.email %> <form method= "POST" action = "/logout">
+ <h2> <%= userId.email %> </h2> <form method= "POST" action = "/logout">
      <input type="submit" value = "Log Out">
   </form>
 
 
-<% } %>
+<% } else { %>
+ <li> <a href="/login"> Log in Here </a> </li>
+<br>
+<br>
+ <li> <a href="/register"> Register Here </a> </li>
+<br>
+<br>
+<h4> Please Log in, or Register as a new user. </h4>
+
+  <% } %>
+
 
 
 

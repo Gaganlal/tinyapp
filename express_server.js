@@ -30,7 +30,7 @@ let urlDataBase = {
  },
  "9sm5xK": {
   longURL: "http://www.google.com",
-  userId : "userRandomID"
+  userId : "user2RandomID"
  }
 };
 
@@ -75,24 +75,27 @@ app.get("/hello", (req,res) => {
 })
 
 app.get("/urls", (req, res) => {
+  let templateVars = {
+    filterDatabase: null,
+    userId: null
+  }
   if(req.session.userId === undefined ){
-    res.send("Please Log in")
   } else {
     let filterData = findURLS(req.session.userId)
 
     console.log(filterData)
-    let templateVars = {
-      filterDatabase: filterData,
-      userId: users[req.session.userId]
-   };                         //passing the urls data (urlDataBase) to the template urls_index
-   res.render("urls_index", templateVars);
-  }                                 //by storing as variable templateVars
+    templateVars['filterDatabase'] = filterData;
+    templateVars['userId'] = users[req.session.userId]
+
+   }                        //passing the urls data (urlDataBase) to the template urls_index
+
+  res.render("urls_index", templateVars);                                 //by storing as variable templateVars
 });
 
 
 app.get("/urls/new", (req,res) => {
 if(!req.session['userId']) {
-  res.redirect("/urls")
+  res.redirect("/login")
 }
 let templateVars = {
     urls: urlDataBase,
@@ -106,21 +109,27 @@ let templateVars = {
 app.get("/urls/:id", (req, res) => {
   let templateVars = {
     shortURL : req.params.id,
-    longURL : urlDataBase,
+    longURL : req.body.longURL,
     userId: users[req.session.userId]
   }
 
   var shortURL = req.params.id
-  if (urlDataBase[shortURL])
-  console.log("shortURL:", shortURL)
-  console.log("ActualUrlDataBase :", urlDataBase )
-  console.log("req.session :", req.session)
-  console.log("urlDataBase: ", urlDataBase[shortURL])
+  if (!urlDataBase[shortURL]) {
+    res.send("URL for given ID does not exist!")
 
-  if(req.session.userId === urlDataBase[shortURL].userId) {
+  }
+  else if (!req.session.userId) {
+    res.send("Please Log in to see this URL.")
+  }
+  // console.log("shortURL:", shortURL)
+  // console.log("ActualUrlDataBase :", urlDataBase )
+  // console.log("req.session :", req.session)
+  // console.log("urlDataBase: ", urlDataBase[shortURL])
+
+  else if(req.session.userId === urlDataBase[shortURL].userId) {
     res.render('urls_show', templateVars)
   } else {
-    res.send("you don't have permission to edit")
+    res.send("This URL does not belong to you")
   }
 })
 
@@ -173,7 +182,7 @@ app.post("/urls", (req, res) => {
   userId: req.session.userId
 }
   console.log(urlDataBase)
-  res.redirect(`/urls/${rando}`)
+  res.redirect(`/urls`)
                                             // {longURL : WHAT U TYPED IN form }  // .longurl u get the value of it which is what
 });                                                                   // u submit
 
@@ -189,7 +198,7 @@ app.post("/urls/:id/delete", (req,res) => {
 
 app.post("/urls/:id", (req, res) => {
    var id = req.params.id
-   urlDataBase[id] = req.body.longURL
+   urlDataBase[id].longURL = req.body.longURL
    res.redirect("/urls")
 
 })

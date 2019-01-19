@@ -5,13 +5,16 @@
 
 <body>
   <% include ./partials/_header %>
+  <% if(userId) { %>
     <% for (var i of filterDatabase) { %>
       <li>
-        <%= `${i.shortURL} - ${i.longURL}` %>  <form method="POST" action="/urls/<%= i.shortURL %>/delete"> <a href='/urls/<%= i.shortURL %>'>Edit </a> <input type="submit" value="Delete &#x1F5D1"> </form>
+        <%= `${i.shortURL} - ${i.longURL}` %>  <form method="POST" action="/urls/<%= i.shortURL %>/delete">
+          <a href='/urls/<%= i.shortURL %>'>Edit </a>   <input type="submit" value="Delete &#x1F5D1">
+        </form>
       </li>
     <% } %>
+  <% } %>
 
-hello
 
 </body>
 </html>
