@@ -148,7 +148,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   console.log(req.body)
   var email = req.body.email
-  var password = bcrypt.hashSync(req.body.password, 10)
+  var password = req.body.password
   var random = generateRandomString()
   if (!email || !password) {
     return res.status(400).send("fill in fool")         // the reutn key prevents the sending headers error
@@ -225,7 +225,7 @@ app.post("/login", (req, res) => {
 })
 
 app.post("/logout", (req, res) => {
-  delete req.session.userId
+  req.session.userId = null
   res.status(302).redirect('/urls')
 })
 
