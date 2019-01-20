@@ -1,17 +1,16 @@
 var express = require("express")
 
 var app = express();
-
+var cookieSession = require('cookie-session')
+const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 var cookieParser = require('cookie-parser')
-app.use(cookieParser())
+app.use(cookieSession({secret: "string"}));
 
 var PORT = 8081;
 
 app.set("view engine", "ejs")
-
-
 function generateRandomString() {
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -21,69 +20,112 @@ function generateRandomString() {
 
   return text;
 };
-
 let urlDataBase = {
-
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-
+  "b2xVn2": {
+   longURL : "http://www.lighthouselabs.ca",
+   userId : "userRandomID"
+ },
+ "9sm5xK": {
+  longURL: "http://www.google.com",
+  userId : "user2RandomID"
+ }
 };
+
+
+function findURLS(userId) {
+  var filterDatabase = [];
+  for (var shortkey in urlDataBase) {                               //iterating through each object(2)
+    if(userId === urlDataBase[shortkey].userId) {
+      let data = urlDataBase[shortkey];                      //var data = is the object containing longurl and userid
+      data['shortURL'] = shortkey                   // add the key shorturl to data and = the (keys) we iterate through
+      filterDatabase.push(data);
+    }
+  }
+  return filterDatabase;
+}
 
 const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("abss", 10)
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("flksjlsj", 10)
   }
-};
+}
 
 
-app.get("/", (req, res) => {                                            //YOU ARE ADDING ADDITIONAL ENDPOINTS through adding paths
+app.get("/", (req, res) => {
   res.send("Hello!")
 
 })
 
-app.get("/urls.json", (req,res) => res.json(urlDataBase))               //get retrieves something, using the PATH.
-                                                                        //respond with json version of urlDataBase if u use /urls.json path
+app.get("/urls.json", (req,res) => res.json(urlDataBase))
+                                                                        //respond with json version of urlDataBase
 
 app.get("/hello", (req,res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n")              //.send is basically saying post this on the page when u search it
+  res.send("<html><body>Hello <b>World</b></body></html>\n")
 })
 
 app.get("/urls", (req, res) => {
   let templateVars = {
-    urls: urlDataBase,
-    userId: users[req.cookies.userId]
-   };                         //passing the urls data (urlDataBase) to the template urls_index
-  res.render("urls_index", templateVars);                                 //by storing as variable templateVars
+    filterDatabase: null,
+    userId: null
+  }
+  if(req.session.userId === undefined ){
+  } else {
+    let filterData = findURLS(req.session.userId)
+    templateVars['filterDatabase'] = filterData;
+    templateVars['userId'] = users[req.session.userId]
+
+   }
+
+  res.render("urls_index", templateVars);
 });
 
+
 app.get("/urls/new", (req,res) => {
+if(!req.session['userId']) {
+  res.redirect("/login")
+}
 let templateVars = {
     urls: urlDataBase,
-    userId: users[req.cookies.userId]
+    userId: users[req.session.userId]
    };
    res.render("urls_new", templateVars)
 
 })
 
+
 app.get("/urls/:id", (req, res) => {
+  var shortURL = req.params.id
   let templateVars = {
-    shortURL : req.params.id,
-    longURL : urlDataBase,
-    userId: users[req.cookies.userId]
+    shortURL : shortURL,
+    longURL : urlDataBase[shortURL].longURL,
+    userId: users[req.session.userId]
   }
-  res.render('urls_show', templateVars)
+  if (!urlDataBase[shortURL]) {
+    res.send("URL for given ID does not exist!")
+
+  }
+  else if (!req.session.userId) {
+    res.send("Please Log in to see this URL.")
+  }
+  else if(req.session.userId === urlDataBase[shortURL].userId) {
+    res.render('urls_show', templateVars)
+  } else {
+    res.send("This URL does not belong to you")
+  }
 })
+
+
 
 app.get("/u/:shortURL", (req, res) => {
  var shortURL = req.params.shortURL
-  let longURL = urlDataBase[shortURL]
+  let longURL = urlDataBase[shortURL].longURL
   res.redirect(longURL);
 });
 
@@ -92,12 +134,11 @@ app.get('/register', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-  console.log(req.body)
   var email = req.body.email
   var password = req.body.password
   var random = generateRandomString()
   if (!email || !password) {
-    return res.status(400).send("fill in fool")         // the reutn key prevents the sending headers error
+    return res.status(400).send("fill in all fields")
   }
     for (key in users) {
     if (email === users[key].email) {
@@ -109,33 +150,37 @@ app.post('/register', (req, res) => {
     email: email,
     password : password
   }
-  console.log(users)
-  //res.cookie('userId', users[random].id)
   var cookieID = users[random].id
-  console.log(cookieID)
-  res.cookie("userId", cookieID)
+  req.session.userId = cookieID
   res.redirect("/urls")
 
 })
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  var rando = generateRandomString()                          // KEY PART IS THAT CONSOLE.LOG ON TERMINALWHAT U SUBMIT. BUT IF U DONT
- urlDataBase[rando] = req.body.longURL
-  console.log(urlDataBase)
+  var rando = generateRandomString()
+  const longURL = req.body.longURL
+  const userId = req.session.userId                  // KEY PART IS THAT CONSOLE.LOG ON TERMINAL WHAT U SUBMIT.
+ urlDataBase[rando] = {
+  longURL: longURL,
+  userId: req.session.userId
+}
   res.redirect(`/urls/${rando}`)
-                                            // {longURL : WHAT U TYPED IN form }  // .longurl u get the value of it which is what
+                                         // {longURL : what you typed in the req body }  //  .longurl u get the value of it which is what
 });                                                                   // u submit
 
 app.post("/urls/:id/delete", (req,res) => {
-  var id = req.params.id
-  delete urlDataBase[id]
-  res.redirect(`/urls`)
+  var shortURL = req.params.id;
+  if (req.session.userId === urlDataBase[shortURL].userId) {
+    delete urlDataBase[shortURL]
+     res.redirect(`/urls`)
+  } else {
+    res.send("fam you don't have permission to delete me!")
+  }
 })
 
 app.post("/urls/:id", (req, res) => {
    var id = req.params.id
-   urlDataBase[id] = req.body.longURL
+   urlDataBase[id].longURL = req.body.longURL
    res.redirect("/urls")
 
 })
@@ -147,27 +192,24 @@ app.post("/login", (req, res) => {
   const names = req.body.names
   const email = req.body.email
   const password = req.body.password
-  console.log(req.body)
   for (key in users) {
-    if (email === users[key].email && password === users[key].password) {
-      res.cookie('userId', key)
+    if (email === users[key].email && bcrypt.compareSync(password, users[key].password)) {
+      req.session.userId = key
       res.redirect('/urls')
     }
   } if (email !== users[key].email && password !== users[key].password) {
     return res.status(403).send("Incorrect Email or Password")
   }
-// var entirebody = req.body
-// console.log(entirebody)
 
 })
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('userId')
+  req.session.userId = null
   res.status(302).redirect('/urls')
 })
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on Port ${PORT}`)
+  console.log(`Tiny App listening on Port ${PORT}`)
 })
 
 
