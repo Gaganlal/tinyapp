@@ -5,7 +5,7 @@
 
 <body>
   <% include ./partials/_header %>
-  <% if(userId) { %>
+  <% if(userId).email { %>
     <% for (var i of filterDatabase) { %>
       <li>
         <%= `${i.shortURL} - ${i.longURL}` %>  <form method="POST" action="/urls/<%= i.shortURL %>/delete">
