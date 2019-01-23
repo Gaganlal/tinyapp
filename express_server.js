@@ -152,7 +152,6 @@ app.post('/register', (req, res) => {
   }
   var cookieID = users[random].id
   req.session.userId = cookieID
-  console.log(users)
   res.redirect("/urls")
 
 })
@@ -195,7 +194,6 @@ app.post("/login", (req, res) => {
   const password = req.body.password
   for (key in users) {
     if (email === users[key].email && bcrypt.compareSync(password, users[key].password)) {
-      console.log("try hit")
       req.session.userId = key
       res.redirect('/urls')
     }
