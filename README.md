@@ -27,6 +27,6 @@ TinyApp is a full stack web development application built with Node and Express 
 ## Getting Started
 
 - Install all dependencies (using `npm install` command).
-- Run the development web server using the `node express_server.js` command.
+- Run the development web server using the `npm run local` command. Note: originally Tweeter was run on port 8081.
 
 

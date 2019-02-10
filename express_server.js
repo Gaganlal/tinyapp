@@ -11,6 +11,8 @@ app.use(cookieSession({secret: "string"}));
 var PORT = 8081;
 
 app.set("view engine", "ejs")
+
+//Function used to generate random Short URL
 function generateRandomString() {
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -20,6 +22,8 @@ function generateRandomString() {
 
   return text;
 };
+
+
 let urlDataBase = {
   "b2xVn2": {
    longURL : "http://www.lighthouselabs.ca",
@@ -58,18 +62,15 @@ const users = {
 }
 
 
-app.get("/", (req, res) => {
-  res.send("Hello!")
-
-})
-
+//respond with json version of urlDataBase
 app.get("/urls.json", (req,res) => res.json(urlDataBase))
-                                                                        //respond with json version of urlDataBase
+
 
 app.get("/hello", (req,res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n")
 })
 
+//To go to landing page
 app.get("/urls", (req, res) => {
   let templateVars = {
     filterDatabase: null,
@@ -86,7 +87,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-
+//To create a new URL
 app.get("/urls/new", (req,res) => {
 if(!req.session['userId']) {
   res.redirect("/login")
@@ -99,7 +100,7 @@ let templateVars = {
 
 })
 
-
+//To go to a specific user's page that contains their URL's
 app.get("/urls/:id", (req, res) => {
   var shortURL = req.params.id
   let templateVars = {
@@ -122,17 +123,19 @@ app.get("/urls/:id", (req, res) => {
 })
 
 
-
+//To go to the actual Long URL of a page. ie www.facebook.com
 app.get("/u/:shortURL", (req, res) => {
  var shortURL = req.params.shortURL
   let longURL = urlDataBase[shortURL].longURL
   res.redirect(longURL);
 });
 
+//To register a new user
 app.get('/register', (req, res) => {
   res.render('urls_emailpassword')
 })
 
+//Post route once a user registers
 app.post('/register', (req, res) => {
   var email = req.body.email
   var password = bcrypt.hashSync(req.body.password, 10)
@@ -156,6 +159,7 @@ app.post('/register', (req, res) => {
 
 })
 
+//Post that submits news longURL into database
 app.post("/urls", (req, res) => {
   var rando = generateRandomString()
   const longURL = req.body.longURL
@@ -168,6 +172,7 @@ app.post("/urls", (req, res) => {
                                          // {longURL : what you typed in the req body }  //  .longurl u get the value of it which is what
 });                                                                   // u submit
 
+//Route that handles deleting a URL
 app.post("/urls/:id/delete", (req,res) => {
   var shortURL = req.params.id;
   if (req.session.userId === urlDataBase[shortURL].userId) {
@@ -185,9 +190,12 @@ app.post("/urls/:id", (req, res) => {
 
 })
 
+//To login
 app.get('/login', (req, res) => {
   res.render('loginpage')
 })
+
+//After logging in, redirect to /urls
 app.post("/login", (req, res) => {
   const names = req.body.names
   const email = req.body.email
@@ -202,7 +210,7 @@ app.post("/login", (req, res) => {
   }
 
 })
-
+//once logging out, redirect to /urls
 app.post("/logout", (req, res) => {
   req.session.userId = null
   res.status(302).redirect('/urls')
